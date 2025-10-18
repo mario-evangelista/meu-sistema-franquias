@@ -166,8 +166,12 @@
           <Table
             columns={columns}
             dataSource={funcionarios}
-            loading={loading}
-            rowKey="id"
+            
+                    loading={{
+                        spinning: loading,
+                        tip: 'Carregando funcionarios, aguarde...'
+                    }} // Controla o preenchimento da tabela
+                    rowKey="id"
             pagination={{ pageSize: 10 }}
           />
         </div>

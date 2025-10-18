@@ -120,10 +120,13 @@
   
         <div className={styles.tableContainer}>
           <Table
-            columns={columns}
-            dataSource={franquias}
-            loading={loading}
-            rowKey="id"
+             columns={columns} // montada anteriormente
+                    dataSource={franquias} // que vem da API
+                    loading={{
+                        spinning: loading,
+                        tip: 'Carregando franquias, aguarde...'
+                    }} // Controla o preenchimento da tabela
+                    rowKey="id"
             pagination={{ pageSize: 10 }}
           />
         </div>
