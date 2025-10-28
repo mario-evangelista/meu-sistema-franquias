@@ -249,27 +249,37 @@ export default function DashboardPage() {
 
         <Col xs={12} sm={6}>
           <Card className={styles.statCard}>
+          
             <Statistic
-              title="Salário Médio"
-              value={dashboardData.salarioMedio}
-              prefix={<DollarOutlined style={{ color: '#fa8c16' }} />}
-              precision={2}
-              valueStyle={{ color: '#fa8c16' }}
-              formatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
-            />
+  title="Salário Médio"
+  value={Number(dashboardData.salarioMedio || 0)}
+  prefix={<DollarOutlined style={{ color: '#fa8c16' }} />}
+  valueStyle={{ color: '#fa8c16' }}
+  formatter={(value) =>
+    `R$ ${Number(value).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+  }
+/>
           </Card>
         </Col>
 
         <Col xs={12} sm={6}>
           <Card className={styles.statCard}>
+
             <Statistic
-              title="Folha Salarial Total"
-              value={dashboardData.folhaTotal}
-              prefix={<WalletOutlined style={{ color: '#eb2f96' }} />}
-              precision={2}
-              valueStyle={{ color: '#eb2f96' }}
-              formatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
-            />
+  title="Folha Salarial Total"
+  value={Number(dashboardData.folhaTotal || 0)}
+  prefix={<WalletOutlined style={{ color: '#eb2f96' }} />}
+  valueStyle={{ color: '#eb2f96' }}
+  formatter={(value) =>
+    `R$ ${Number(value).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+  }
+/>
           </Card>
         </Col>
       </Row>

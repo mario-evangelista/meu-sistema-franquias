@@ -38,12 +38,19 @@ export async function GET() {
     // ==========================================
     const totalFuncionarios = funcionarios.length
 
-    let somaSalarios = 0
+    /*let somaSalarios = 0
     funcionarios.forEach(f => {
       somaSalarios += f.salario
-    })
+    })*/
+
+      let somaSalarios = 0
+funcionarios.forEach(f => {
+  somaSalarios += Number(f.salario) || 0
+})
+
 
     const salarioMedio = totalFuncionarios > 0 ? somaSalarios / totalFuncionarios : 0
+
 
     // ==========================================
     // PASSO 3: AGRUPAR POR CATEGORIAS
