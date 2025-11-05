@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Franquia" ADD COLUMN     "cep" TEXT NOT NULL DEFAULT '00000-000';

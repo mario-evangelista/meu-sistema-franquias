@@ -10,6 +10,7 @@ datasource db {
 model Franquia {
   id           Int           @id @default(autoincrement())
   nome         String
+  cep          String @default("00000-000")
   cidade       String
   endereco     String
   telefone     String
