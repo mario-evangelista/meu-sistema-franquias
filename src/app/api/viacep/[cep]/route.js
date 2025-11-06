@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
     try {
-        // Next.js 15 requer await do params
         const { cep: cepParam } = await params;
         const cep = cepParam.replace(/\D/g, '');
         
