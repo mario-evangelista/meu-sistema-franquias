@@ -1,0 +1,42 @@
+import { NextResponse } from "next/server";
+
+export async function GET(request, { params }) {
+    try {
+        // Next.js 15 requer await do params
+        const { cep: cepParam } = await params;
+        const cep = cepParam.replace(/\D/g, '');
+        
+        if (cep.length !== 8) {
+            return NextResponse.json(
+                { error: 'O campo CEP deve conter 8 dígitos' },
+                { status: 400 }
+            );
+        }
+        
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
+        
+        if (data.erro) {
+            return NextResponse.json(
+                { error: 'CEP não encontrado' },
+                { status: 404 }
+            );
+        }
+        
+        return NextResponse.json({
+            cep: data.cep,
+            logradouro: data.logradouro,
+            complemento: data.complemento,
+            bairro: data.bairro,
+            localidade: data.localidade,
+            uf: data.uf
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+        return NextResponse.json(
+            { error: 'Erro ao consultar o CEP' },
+            { status: 500 }
+        );
+    }
+}
