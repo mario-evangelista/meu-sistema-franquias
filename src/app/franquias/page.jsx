@@ -10,6 +10,7 @@
     const [loading, setLoading] = useState(true)
     const [modalVisible, setModalVisible] = useState(false)
     const [editandoId, setEditandoId] = useState(null)
+    const [buscandoCep, setBuscandoCep] = useState(false)
     const [form] = Form.useForm()
   
     async function carregarFranquias() {
@@ -29,7 +30,43 @@
       carregarFranquias()
     }, [])
 
-    
+    async function buscarCep(cep) {
+      const cepLimpo = cep.replace(/\D/g,'')
+
+if(cepLimpo.length !== 8){
+return
+}
+
+setBuscandoCep(true)
+
+try{
+  const response = await fetch(`/api/viacep/${cepLimpo}`)
+
+if(response.ok){
+
+const data = await response.json()
+
+form.setFieldValue({
+  endereco: data.logradouro,
+  cidade: data.localidade
+})
+
+message.success('CEP Localizado!')
+}else{
+  message.error('CEP Não Localizado!')
+  form.setFieldValue({
+    endereco:'',
+    cidade:''
+  })
+}
+
+}catch(error){
+  message.error('Erro ao Buscar CEP')
+}finally{
+  setBuscandoCep(false)
+}
+
+    }
   
     async function salvarFranquia(values) {
       try {
@@ -69,13 +106,15 @@
     }
   
     function editar(franquia) {
-      setEditandoId(franquia.id)
+      setEditandoId(franquiaid)
       form.setFieldsValue(franquia)
       setModalVisible(true)
     }
   
     const columns = [
       { title: 'Nome', dataIndex: 'nome', key: 'nome' },
+      {title:'CEP', dataIndex:'cep',key:'cep'}
+      ,
       { title: 'Cidade', dataIndex: 'cidade', key: 'cidade' },
       { title: 'Endereço', dataIndex: 'endereco', key: 'endereco' },
       { title: 'Telefone', dataIndex: 'telefone', key: 'telefone' },
@@ -146,6 +185,24 @@
             <Form.Item name="nome" label="Nome" rules={[{ required: true, message: 'Campo obrigatório' }]}>
               <Input />
             </Form.Item>
+
+<Form.Item name="cep" label="CEP"
+rules={[
+  {required:true, message:'Campo Obrigatório!'},
+    {
+      pattern: /^\d{5}-?\d{3}$/,
+      message: 'CEP Inválido'
+    }
+]}
+>
+<Input
+placeholder="00000-000"
+maxLength={9}
+onBlur={(e) => buscarCep(e.target.value)}
+loading={buscandoCep}
+/>
+</Form.Item>
+
             <Form.Item name="cidade" label="Cidade" rules={[{ required: true, message: 'Campo obrigatório' }]}>
               <Input />
             </Form.Item>

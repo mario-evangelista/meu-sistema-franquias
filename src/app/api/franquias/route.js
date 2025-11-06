@@ -33,9 +33,9 @@ export async function POST(request) {
   try {
     const data = await request.json()
     
-    const { nome, cidade, endereco, telefone } = data
+    const { nome, cep, cidade, endereco, telefone } = data
 
-    if (!nome || !cidade || !endereco || !telefone) {
+    if (!nome || !cep || !cidade || !endereco || !telefone) {
       return NextResponse.json(
         { error: 'Todos os campos são obrigatórios' },
         { status: 400 }
@@ -45,6 +45,7 @@ export async function POST(request) {
     const franquia = await prisma.franquia.create({
       data: {
         nome,
+        cep,
         cidade,
         endereco,
         telefone
