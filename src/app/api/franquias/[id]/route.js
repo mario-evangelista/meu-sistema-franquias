@@ -3,113 +3,86 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// GET /api/franquias/[id] - Buscar franquia por ID
-export async function GET(request, { params }) {
+export async function GET(_req, { params }) {
   try {
-    const id = parseInt(params.id)
-    
+    const id = Number(params?.id)
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+    }
+
     const franquia = await prisma.franquia.findUnique({
       where: { id },
       include: {
         funcionarios: true,
-        _count: {
-          select: { funcionarios: true }
-        }
+        _count: { select: { funcionarios: true } }
       }
     })
 
     if (!franquia) {
-      return NextResponse.json(
-        { error: 'Franquia não encontrada' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Franquia não encontrada' }, { status: 404 })
     }
 
     return NextResponse.json(franquia)
   } catch (error) {
-    console.error('Erro ao buscar franquia:', error)
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }
 
-// PUT /api/franquias/[id] - Atualizar franquia
 export async function PUT(request, { params }) {
   try {
-    const id = parseInt(params.id)
-    const data = await request.json()
-    
-    const { nome, cidade, endereco, telefone } = data
-
-    const franquiaExiste = await prisma.franquia.findUnique({
-      where: { id }
-    })
-
-    if (!franquiaExiste) {
-      return NextResponse.json(
-        { error: 'Franquia não encontrada' },
-        { status: 404 }
-      )
+    const id = Number(params?.id)
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
     }
 
-    if (!nome || !cidade || !endereco || !telefone) {
-      return NextResponse.json(
-        { error: 'Todos os campos são obrigatórios' },
-        { status: 400 }
-      )
+    const data = await request.json()
+    const { nome, cep, cidade, endereco, telefone } = data ?? {}
+
+    if (!nome || !cep || !cidade || !endereco || !telefone) {
+      return NextResponse.json({ error: 'Todos os campos são obrigatórios' }, { status: 400 })
+    }
+
+    const cepLimpo = String(cep).replace(/\D/g, '')
+    if (!/^\d{8}$/.test(cepLimpo)) {
+      return NextResponse.json({ error: 'CEP deve conter 8 dígitos' }, { status: 400 })
+    }
+
+    const franquiaExiste = await prisma.franquia.findUnique({ where: { id } })
+    if (!franquiaExiste) {
+      return NextResponse.json({ error: 'Franquia não encontrada' }, { status: 404 })
     }
 
     const franquia = await prisma.franquia.update({
       where: { id },
-      data: {
-        nome,
-        cidade,
-        endereco,
-        telefone
-      },
+      data: { nome, cep: cepLimpo, cidade, endereco, telefone },
       include: {
         funcionarios: true,
-        _count: {
-          select: { funcionarios: true }
-        }
+        _count: { select: { funcionarios: true } }
       }
     })
 
     return NextResponse.json(franquia)
   } catch (error) {
-    console.error('Erro ao atualizar franquia:', error)
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }
 
-// DELETE /api/franquias/[id] - Deletar franquia
-export async function DELETE(request, { params }) {
+export async function DELETE(_req, { params }) {
   try {
-    const id = parseInt(params.id)
+    const id = Number(params?.id)
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+    }
 
-    // Verificar se a franquia existe
     const franquia = await prisma.franquia.findUnique({
       where: { id },
-      include: {
-        _count: {
-          select: { funcionarios: true }
-        }
-      }
+      include: { _count: { select: { funcionarios: true } } }
     })
 
     if (!franquia) {
-      return NextResponse.json(
-        { error: 'Franquia não encontrada' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Franquia não encontrada' }, { status: 404 })
     }
 
-    // Verificar se tem funcionários vinculados
     if (franquia._count.funcionarios > 0) {
       return NextResponse.json(
         { error: 'Não é possível deletar franquia com funcionários vinculados' },
@@ -117,16 +90,9 @@ export async function DELETE(request, { params }) {
       )
     }
 
-    await prisma.franquia.delete({
-      where: { id }
-    })
-
+    await prisma.franquia.delete({ where: { id } })
     return NextResponse.json({ message: 'Franquia deletada com sucesso' })
   } catch (error) {
-    console.error('Erro ao deletar franquia:', error)
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }
